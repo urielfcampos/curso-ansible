@@ -1,0 +1,35 @@
+---
+  - name: 'Instala pacotes de dependencia do sistema operacional'
+    apt:
+      name: ['mysql-server', 'python-mysqldb']
+      update-cache: yes
+      state: latest
+    become: yes
+  
+  - name: 'Cria banco de testes'
+    mysql_db:
+        name: wordpress_db
+        login_user: root
+        state: present
+    become: yes
+
+  - name: 'Cria o usuario do mysql'
+    mysql_user:
+        name: 'vagrant'
+        password: '12345'
+        priv: 'wordpress_db.*:ALL'
+        state: present
+        host: "{{ item }}"
+    become: yes
+    with_items:
+      - 'localhost'
+      - '127.0.0.1'
+      - '172.17.177.50'
+      
+  - name: "Configura mySQL para aceitar conexoes remotas"
+    copy:
+      src: 'files/my.cnf'
+      dest: '/etc/mysql/my.cnf'
+    become: yes
+    notify:
+      - restart mysql

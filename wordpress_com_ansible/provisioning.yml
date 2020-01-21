@@ -1,5 +1,21 @@
 ---
 
-- hosts: all
+- hosts: wordpress
+  handlers:
+    - name: restart apache
+      service:
+        name: apache2
+        state: restarted
+      become: yes
   roles:
     - common
+
+- hosts: databases
+  handlers:
+    - name: restart mysql   
+      service:
+        name: mysql
+        state: restarted
+      become: yes
+  roles:
+    - mysql
